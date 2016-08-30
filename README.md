@@ -181,5 +181,3 @@ defmodule MyProject.XAdmin.Question do
   end
 end
 ```
-
-```

@@ -111,18 +111,14 @@ defmodule XAdmin.Table do
     end
   end
 
-  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label),
-    do: build_th(label, opts, table_opts)
   def build_th({field_name, opts}, table_opts) when is_atom(field_name),
     do: build_th(Atom.to_string(field_name), opts, table_opts)
-  def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
-    do: build_th(label, opts, table_opts)
   def build_th({field_name, _opts}, _table_opts) when is_binary(field_name),
     do: th(".th-#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, _),
     do: th(".th-#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
-    if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
+    if String.to_atom(field_name) in fields do
       _build_th(field_name, opts, table_opts)
     else
       th(".th-#{parameterize field_name} #{humanize field_name}")
@@ -136,8 +132,9 @@ defmodule XAdmin.Table do
   end
   def build_th(field_name, _, _), do: build_th(field_name, nil)
 
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort},
+  def _build_th(field_name, opts, %{path_prefix: path_prefix, order: {name, sort},
       fields: _fields} = table_opts) when field_name == name do
+    label = if opts[:label], do: opts[:label], else: field_name
     link_order = if sort == "desc", do: "asc", else: "desc"
     page_segment = case Map.get table_opts, :page, nil do
       nil -> ""
@@ -148,12 +145,13 @@ defmodule XAdmin.Table do
       scope -> "&scope=#{scope}"
     end
     th(".sortable.sorted-#{sort}.th-#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <>
+      a("#{humanize label}", href: path_prefix <>
         field_name <> "_#{link_order}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end
   end
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
+  def _build_th(field_name, opts, %{path_prefix: path_prefix} = table_opts) do
+    label = if opts[:label], do: opts[:label], else: field_name
     sort = Map.get(table_opts, :sort, "asc")
     page_segment = case Map.get table_opts, :page, nil do
       nil -> ""
@@ -164,7 +162,7 @@ defmodule XAdmin.Table do
       scope -> "&scope=#{scope}"
     end
     th(".sortable.th-#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <>
+      a("#{humanize label}", href: path_prefix <>
         field_name <> "_#{sort}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end

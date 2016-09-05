@@ -27,4 +27,22 @@ defmodule XAdmin.AdminController do
     Application.put_env :xadmin, :theme, theme
     redirect conn, to: loc
   end
+
+  def login(conn ,params) do
+    conn = XAdmin.Auth.login(conn, params)
+    if Map.get(conn, :login) do
+      [path, _] = conn.path_info
+      redirect conn, to: "/#{path}/"  
+    else
+      conn
+      |> put_layout(false)
+      |> render "login.html"          
+    end
+  end
+
+ def logout(conn ,params) do
+    conn = XAdmin.Auth.logout(conn, params)
+    [path, _] = conn.path_info
+    redirect conn, to: "/#{path}/login"
+  end
 end

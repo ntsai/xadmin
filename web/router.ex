@@ -38,6 +38,9 @@ defmodule XAdmin.Router do
   defmacro admin_routes(_opts \\ []) do
     quote do
       get "/", AdminController, :dashboard
+      get "/login", AdminController,  :login
+      post "/login", AdminController,  :login
+      get "/logout", AdminController, :logout
       get "/dashboard", AdminController, :dashboard
       get "/page/:page", AdminController, :page
       get "/select_theme/:id", AdminController, :select_theme
